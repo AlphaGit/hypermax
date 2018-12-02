@@ -13,6 +13,8 @@ import lightgbm
 import scipy.stats
 import math
 import copy
+from contextlib import contextmanager
+import os
 
 class ATPEOptimizer(OptimizationAlgorithmBase):
     atpeParameters = [
@@ -169,6 +171,16 @@ class ATPEOptimizer(OptimizationAlgorithmBase):
         'top_30%_loss_stddev_median_ratio'
     ]
 
+    @contextmanager
+    def ClosedNamedTempFile(self, contents):
+        try:
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                file_name = f.name
+                f.write(contents)
+            yield file_name
+        finally:
+            os.unlink(file_name)
+
     def __init__(self):
         scalingModelData = json.loads(pkg_resources.resource_string(__name__, "../atpe_models/scaling_model.json"))
         self.featureScalingModels = {}
@@ -182,9 +194,8 @@ class ATPEOptimizer(OptimizationAlgorithmBase):
         self.parameterModelConfigurations = {}
         for param in self.atpeParameters:
             modelData = pkg_resources.resource_string(__name__, "../atpe_models/model-" + param + '.txt')
-            with tempfile.NamedTemporaryFile() as file:
-                file.write(modelData)
-                self.parameterModels[param] = lightgbm.Booster(model_file=file.name)
+            with self.ClosedNamedTempFile(modelData) as model_file_name:
+                self.parameterModels[param] = lightgbm.Booster(model_file=model_file_name)
 
             configString = pkg_resources.resource_string(__name__, "../atpe_models/model-" + param + '-configuration.json')
             data = json.loads(configString)
