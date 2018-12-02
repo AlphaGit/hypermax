@@ -108,6 +108,9 @@ Lastly, you need to provide indication if you want to use the UI:
 }
 ```
 
+**NOTE:** At the moment the console UI is not supported in Windows environments, so you will need to specify `false` in
+the `enabled` property. We use the `urwid.raw_display` module which relies on `fcntl`. For more information, [see here](https://github.com/urwid/urwid/issues/152).
+
 Pulling it all together, you create a file like this `search.json`, defining your hyper-parameter search:
 
 ```json
