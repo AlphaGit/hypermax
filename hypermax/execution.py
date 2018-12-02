@@ -126,7 +126,7 @@ class Execution:
             :return: The subprocess.Popen object representing the subprocess. Also stored in self.process
         """
         if self.config['type'] == 'python_function':
-            process = subprocess.Popen(['python3', '-c', self.createPythonFunctionScript()], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process = subprocess.Popen(['python', '-c', self.createPythonFunctionScript()], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             atexit.register(lambda: process.kill())
 
             # Set process affinities - hypermax in one, the model in the rest. Prevents them from causing cache conflicts.
